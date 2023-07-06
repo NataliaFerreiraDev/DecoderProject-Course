@@ -1,9 +1,11 @@
 package br.com.decoder.ead.course.specifications;
 
 import br.com.decoder.ead.course.models.CourseModel;
+import br.com.decoder.ead.course.models.CourseUserModel;
 import br.com.decoder.ead.course.models.LessonModel;
 import br.com.decoder.ead.course.models.ModuleModel;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import net.kaczmarzyk.spring.data.jpa.domain.Equal;
 import net.kaczmarzyk.spring.data.jpa.domain.Like;
@@ -49,6 +51,14 @@ public class SpecificationTemplate {
             Root<ModuleModel> module = query.from(ModuleModel.class);
             Expression<Collection<LessonModel>> moduleLessons = module.get("lessons");
             return cb.and(cb.equal(module.get("moduleId"), moduleId), cb.isMember(lesson, moduleLessons));
+        };
+    }
+
+    public static Specification<CourseModel> courseUserId(final UUID userId){
+        return (root, query, cb) -> {
+            query.distinct(true);
+            Join<CourseModel, CourseUserModel> courseProd = root.join("courseUsers");
+            return cb.equal(courseProd.get("courseId"), userId);
         };
     }
 
