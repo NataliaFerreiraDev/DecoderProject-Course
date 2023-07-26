@@ -1,9 +1,11 @@
 package br.com.decoder.ead.course.services.impl;
 
 import br.com.decoder.ead.course.models.CourseModel;
+import br.com.decoder.ead.course.models.CourseUserModel;
 import br.com.decoder.ead.course.models.LessonModel;
 import br.com.decoder.ead.course.models.ModuleModel;
 import br.com.decoder.ead.course.repositories.CourseRepository;
+import br.com.decoder.ead.course.repositories.CourseUserRepository;
 import br.com.decoder.ead.course.repositories.LessonRepository;
 import br.com.decoder.ead.course.repositories.ModuleRepository;
 import br.com.decoder.ead.course.services.CourseService;
@@ -30,6 +32,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     LessonRepository lessonRepository;
 
+    @Autowired
+    CourseUserRepository courseUserRepository;
+
 
     @Transactional
     @Override
@@ -45,8 +50,11 @@ public class CourseServiceImpl implements CourseService {
             }
             moduleRepository.deleteAll(moduleModelList);
         }
+        List<CourseUserModel> courseUserModelList = courseUserRepository.findAllCourseUserIntoCourse(courseModel.getCourseId());
+        if(!courseUserModelList.isEmpty()){
+            courseUserRepository.deleteAll(courseUserModelList);
+        }
         courseRepository.delete(courseModel);
-
     }
 
     @Override
