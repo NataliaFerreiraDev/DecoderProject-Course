@@ -57,7 +57,7 @@ public class CourseController {
 
         Optional<CourseModel> courseModelOptional = courseService.findById(courseId);
 
-        if(!courseModelOptional.isPresent()){
+        if(courseModelOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(NOT_FOUND);
         }
 
@@ -72,7 +72,7 @@ public class CourseController {
 
         Optional<CourseModel> courseModelOptional = courseService.findById(courseId);
 
-        if (!courseModelOptional.isPresent()) {
+        if (courseModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(NOT_FOUND);
         }
 
@@ -90,16 +90,7 @@ public class CourseController {
                                                            Pageable pageable,
                                                            @RequestParam(required = false) UUID userId){
 
-
-        Page<CourseModel> courseModelPage = null;
-
-        if(userId != null){
-            courseModelPage = courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable);
-        } else {
-            courseModelPage = courseService.findAll(spec, pageable);
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(courseModelPage);
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll(spec, pageable));
     }
 
     @GetMapping("/{courseId}")

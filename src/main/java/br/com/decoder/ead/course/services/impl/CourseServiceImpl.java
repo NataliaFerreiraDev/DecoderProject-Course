@@ -1,14 +1,12 @@
 package br.com.decoder.ead.course.services.impl;
 
-import br.com.decoder.ead.course.clients.AuthUserClient;
 import br.com.decoder.ead.course.models.CourseModel;
-import br.com.decoder.ead.course.models.CourseUserModel;
 import br.com.decoder.ead.course.models.LessonModel;
 import br.com.decoder.ead.course.models.ModuleModel;
 import br.com.decoder.ead.course.repositories.CourseRepository;
-import br.com.decoder.ead.course.repositories.CourseUserRepository;
 import br.com.decoder.ead.course.repositories.LessonRepository;
 import br.com.decoder.ead.course.repositories.ModuleRepository;
+import br.com.decoder.ead.course.repositories.UserRepository;
 import br.com.decoder.ead.course.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,17 +32,11 @@ public class CourseServiceImpl implements CourseService {
     LessonRepository lessonRepository;
 
     @Autowired
-    CourseUserRepository courseUserRepository;
-
-    @Autowired
-    AuthUserClient authUserClient;
-
+    UserRepository userRepository;
 
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
-        boolean deleteCourseUserInAuthUser = false;
-
         List<ModuleModel> moduleModelList = moduleRepository.findAllModulesIntoCourse(courseModel.getCourseId());
 
         if(!moduleModelList.isEmpty()){
@@ -56,17 +48,7 @@ public class CourseServiceImpl implements CourseService {
             }
             moduleRepository.deleteAll(moduleModelList);
         }
-        List<CourseUserModel> courseUserModelList = courseUserRepository.findAllCourseUserIntoCourse(courseModel.getCourseId());
-        if(!courseUserModelList.isEmpty()){
-            courseUserRepository.deleteAll(courseUserModelList);
-            deleteCourseUserInAuthUser = true;
-        }
         courseRepository.delete(courseModel);
-
-        if(deleteCourseUserInAuthUser){
-            authUserClient.deleteCourseInAuthUser(courseModel.getCourseId());
-        }
-
     }
 
     @Override
