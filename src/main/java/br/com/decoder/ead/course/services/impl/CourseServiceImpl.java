@@ -1,5 +1,6 @@
 package br.com.decoder.ead.course.services.impl;
 
+import br.com.decoder.ead.course.clients.AuthUserClient;
 import br.com.decoder.ead.course.models.CourseModel;
 import br.com.decoder.ead.course.models.CourseUserModel;
 import br.com.decoder.ead.course.models.LessonModel;
@@ -35,10 +36,15 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     CourseUserRepository courseUserRepository;
 
+    @Autowired
+    AuthUserClient authUserClient;
+
 
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
+        boolean deleteCourseUserInAuthUser = false;
+
         List<ModuleModel> moduleModelList = moduleRepository.findAllModulesIntoCourse(courseModel.getCourseId());
 
         if(!moduleModelList.isEmpty()){
@@ -53,8 +59,14 @@ public class CourseServiceImpl implements CourseService {
         List<CourseUserModel> courseUserModelList = courseUserRepository.findAllCourseUserIntoCourse(courseModel.getCourseId());
         if(!courseUserModelList.isEmpty()){
             courseUserRepository.deleteAll(courseUserModelList);
+            deleteCourseUserInAuthUser = true;
         }
         courseRepository.delete(courseModel);
+
+        if(deleteCourseUserInAuthUser){
+            authUserClient.deleteCourseInAuthUser(courseModel.getCourseId());
+        }
+
     }
 
     @Override
